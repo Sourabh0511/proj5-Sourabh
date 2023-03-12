@@ -52,7 +52,8 @@ func NewRaftServer(id int64, config RaftConfig) (*RaftSurfstore, error) {
 		// Added for discussion
 		serverId:       id,
 		ipList:         config.RaftAddrs,
-		pendingCommits: make([]*chan bool, 0),
+		ip:             config.RaftAddrs[id],
+		pendingCommits: make([]chan bool, 0),
 		commitIndex:    -1,
 		lastApplied:    -1,
 	}

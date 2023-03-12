@@ -23,15 +23,16 @@ type RaftSurfstore struct {
 
 	// Added for discussion
 	serverId            int64
+	ip                  string
 	ipList              []string
 	pendingCommits      []chan bool
-	pendingCommitsMutex sync.RWMutex
+	pendingCommitsMutex *sync.RWMutex
 	commitIndex         int64
 	lastApplied         int64
 
 	//log protection
 	//Log mutex
-	logMutex sync.Mutex
+	logMutex *sync.Mutex
 
 	/*--------------- Chaos Monkey --------------*/
 	isCrashed      bool
