@@ -32,7 +32,7 @@ type RaftSurfstore struct {
 
 	//log protection
 	//Log mutex
-	logMutex *sync.Mutex
+	logMutex sync.Mutex //*
 
 	/*--------------- Chaos Monkey --------------*/
 	isCrashed      bool
