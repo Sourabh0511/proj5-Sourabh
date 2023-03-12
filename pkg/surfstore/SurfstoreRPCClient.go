@@ -95,55 +95,61 @@ func (surfClient *RPCClient) GetFileInfoMap(serverFileInfoMap *map[string]*FileM
 	// panic("todo")
 
 	// conn, err := grpc.Dial(surfClient.MetaStoreAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(surfClient.MetaStoreAddrs[0], grpc.WithInsecure())
-	if err != nil {
-		return err
+	for _, addr := range surfClient.MetaStoreAddrs {
+		conn, err := grpc.Dial(addr, grpc.WithInsecure())
+		if err != nil {
+			return err
+		}
+		c := NewRaftSurfstoreClient(conn)
+
+		// perform the call
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		fileInfoMap, err := c.GetFileInfoMap(ctx, &emptypb.Empty{})
+		// fmt.Println("GetFileInfoMap:")
+		// fmt.Println(fileInfoMap)
+		if err != nil {
+			fmt.Println(err)
+			conn.Close()
+			return err
+		}
+
+		// *serverFileInfoMap = fileInfoMap.GetFileInfoMap()
+		*serverFileInfoMap = fileInfoMap.FileInfoMap
+		// fmt.Println(fileInfoMap.FileInfoMap)
+		// log.Println((*fileInfoMap).FileInfoMap)
+
+		// close the connection
+		return conn.Close()
 	}
-	c := NewRaftSurfstoreClient(conn)
-
-	// perform the call
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	fileInfoMap, err := c.GetFileInfoMap(ctx, &emptypb.Empty{})
-	// fmt.Println("GetFileInfoMap:")
-	// fmt.Println(fileInfoMap)
-	if err != nil {
-		fmt.Println(err)
-		conn.Close()
-		return err
-	}
-
-	// *serverFileInfoMap = fileInfoMap.GetFileInfoMap()
-	*serverFileInfoMap = fileInfoMap.FileInfoMap
-	// fmt.Println(fileInfoMap.FileInfoMap)
-	// log.Println((*fileInfoMap).FileInfoMap)
-
-	// close the connection
-	return conn.Close()
+	return fmt.Errorf("get fileinfomap operation: failed to contact all servers")
 }
 
 func (surfClient *RPCClient) UpdateFile(fileMetaData *FileMetaData, latestVersion *int32) error {
 	// panic("todo")
 	// conn, err := grpc.Dial(surfClient.MetaStoreAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(surfClient.MetaStoreAddrs[0], grpc.WithInsecure())
-	if err != nil {
-		return err
-	}
-	c := NewRaftSurfstoreClient(conn)
+	for _, addr := range surfClient.MetaStoreAddrs {
+		conn, err := grpc.Dial(addr, grpc.WithInsecure())
+		if err != nil {
+			return err
+		}
+		c := NewRaftSurfstoreClient(conn)
 
-	// perform the call
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	finalVers, err := c.UpdateFile(ctx, fileMetaData)
-	// fmt.Println("Final vers:", finalVers)
-	if err != nil {
-		conn.Close()
-		return err
-	}
-	*latestVersion = finalVers.Version
+		// perform the call
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		finalVers, err := c.UpdateFile(ctx, fileMetaData)
+		// fmt.Println("Final vers:", finalVers)
+		if err != nil {
+			conn.Close()
+			return err
+		}
+		*latestVersion = finalVers.Version
 
-	// close the connection
-	return conn.Close()
+		// close the connection
+		return conn.Close()
+	}
+	return fmt.Errorf("update file operation: failed to contact all servers")
 }
 
 // func (surfClient *RPCClient) GetBlockStoreAddr(blockStoreAddr *string) error {
@@ -187,43 +193,47 @@ func (surfClient *RPCClient) GetBlockHashes(blockStoreAddr string, blockHashes *
 func (surfClient *RPCClient) GetBlockStoreMap(blockHashesIn []string, blockStoreMap *map[string][]string) error {
 	// panic("todo")
 	// conn, err := grpc.Dial(surfClient.MetaStoreAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(surfClient.MetaStoreAddrs[0], grpc.WithInsecure())
-	if err != nil {
+	for _, addr := range surfClient.MetaStoreAddrs {
+		conn, err := grpc.Dial(addr, grpc.WithInsecure())
+		if err != nil {
+			return err
+		}
+		c := NewRaftSurfstoreClient(conn)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		blockHashes := &BlockHashes{}
+		for _, bin := range blockHashesIn {
+			blockHashes.Hashes = append(blockHashes.Hashes, bin)
+		}
+		bm, err := c.GetBlockStoreMap(ctx, blockHashes)
+		bStrMp := make(map[string][]string)
+		for k, v := range bm.BlockStoreMap {
+			bStrMp[k] = v.GetHashes()
+		}
+		*blockStoreMap = bStrMp
 		return err
 	}
-	c := NewRaftSurfstoreClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	blockHashes := &BlockHashes{}
-	for _, bin := range blockHashesIn {
-		blockHashes.Hashes = append(blockHashes.Hashes, bin)
-	}
-	bm, err := c.GetBlockStoreMap(ctx, blockHashes)
-	bStrMp := make(map[string][]string)
-	for k, v := range bm.BlockStoreMap {
-		bStrMp[k] = v.GetHashes()
-	}
-	*blockStoreMap = bStrMp
-	return err
-
+	return fmt.Errorf("get block str map operation: failed to contact all servers")
 }
 
 func (surfClient *RPCClient) GetBlockStoreAddrs(blockStoreAddrs *[]string) error {
 	// panic("todo")
 	// conn, err := grpc.Dial(surfClient.MetaStoreAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(surfClient.MetaStoreAddrs[0], grpc.WithInsecure())
-	if err != nil {
-		return err
+	for _, addr := range surfClient.MetaStoreAddrs {
+		conn, err := grpc.Dial(addr, grpc.WithInsecure())
+		if err != nil {
+			return err
+		}
+		c := NewRaftSurfstoreClient(conn)
+		// perform the call
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		addrs, err := c.GetBlockStoreAddrs(ctx, &emptypb.Empty{})
+		*blockStoreAddrs = addrs.GetBlockStoreAddrs()
+
+		return conn.Close()
 	}
-	c := NewRaftSurfstoreClient(conn)
-	// perform the call
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	addrs, err := c.GetBlockStoreAddrs(ctx, &emptypb.Empty{})
-	*blockStoreAddrs = addrs.GetBlockStoreAddrs()
-
-	return conn.Close()
-
+	return fmt.Errorf("get block addrs operation: failed to contact all servers")
 }
 
 // This line guarantees all method for RPCClient are implemented
