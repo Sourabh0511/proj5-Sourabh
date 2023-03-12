@@ -261,7 +261,7 @@ func (s *RaftSurfstore) UpdateFile(ctx context.Context, filemeta *FileMetaData) 
 
 	committed := make(chan bool)
 	s.pendingCommitsMutex.Lock()
-	s.pendingCommits = append(s.pendingCommits, &committed)
+	s.pendingCommits = append(s.pendingCommits, committed)
 	commitIdx := len(s.pendingCommits) - 1
 	s.pendingCommitsMutex.Unlock()
 	go s.attemptCommit(logIndex, commitIdx)
