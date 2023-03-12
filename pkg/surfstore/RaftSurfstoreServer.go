@@ -402,8 +402,8 @@ func (s *RaftSurfstore) SendHeartbeat(ctx context.Context, _ *emptypb.Empty) (*S
 			LeaderCommit: s.commitIndex,
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+		// ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		// defer cancel()
 		output, err := client.AppendEntries(ctx, input)
 		if (err == nil) || (err != nil && !strings.Contains(err.Error(), "Server is crashed.")) {
 			heartBCount++

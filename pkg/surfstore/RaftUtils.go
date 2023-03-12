@@ -67,7 +67,7 @@ func ServeRaftServer(server *RaftSurfstore) error {
 	s := grpc.NewServer()
 	RegisterRaftSurfstoreServer(s, server)
 
-	l, e := net.Listen("tcp", server.ip)
+	l, e := net.Listen("tcp", server.ipList[server.serverId])
 	if e != nil {
 		return e
 	}
