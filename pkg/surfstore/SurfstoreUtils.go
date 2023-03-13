@@ -132,10 +132,13 @@ func processTaggedFiles(client RPCClient, taggedFiles []FileTagInfo, localFileMe
 	for _, tagged_file := range taggedFiles {
 		fn := tagged_file.fileName
 		if tagged_file.op == 3 {
-			if serverFileMetaMap[fn].Version == tagged_file.version {
-				continue
+			_, ok := serverFileMetaMap[fn]
+			// fmt.Println("Ok value is:", ok)
+			if ok {
+				if serverFileMetaMap[fn].Version == tagged_file.version {
+					continue
+				}
 			}
-
 		}
 		blocks := make([][]byte, 0)
 		hblocks := make([]string, 0)
