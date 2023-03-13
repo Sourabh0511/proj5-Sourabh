@@ -109,9 +109,10 @@ func (surfClient *RPCClient) GetFileInfoMap(serverFileInfoMap *map[string]*FileM
 		// fmt.Println("GetFileInfoMap:")
 		// fmt.Println(fileInfoMap)
 		if err != nil {
-			fmt.Println(err)
-			conn.Close()
-			return err
+			// fmt.Println(err)
+			// conn.Close()
+			// return err
+			continue
 		}
 
 		// *serverFileInfoMap = fileInfoMap.GetFileInfoMap()
@@ -141,8 +142,9 @@ func (surfClient *RPCClient) UpdateFile(fileMetaData *FileMetaData, latestVersio
 		finalVers, err := c.UpdateFile(ctx, fileMetaData)
 		// fmt.Println("Final vers:", finalVers)
 		if err != nil {
-			conn.Close()
-			return err
+			// conn.Close()
+			// return err
+			continue
 		}
 		*latestVersion = finalVers.Version
 
@@ -206,6 +208,9 @@ func (surfClient *RPCClient) GetBlockStoreMap(blockHashesIn []string, blockStore
 			blockHashes.Hashes = append(blockHashes.Hashes, bin)
 		}
 		bm, err := c.GetBlockStoreMap(ctx, blockHashes)
+		if err != nil {
+			continue
+		}
 		bStrMp := make(map[string][]string)
 		for k, v := range bm.BlockStoreMap {
 			bStrMp[k] = v.GetHashes()
@@ -229,6 +234,9 @@ func (surfClient *RPCClient) GetBlockStoreAddrs(blockStoreAddrs *[]string) error
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		addrs, err := c.GetBlockStoreAddrs(ctx, &emptypb.Empty{})
+		if err != nil {
+			continue
+		}
 		*blockStoreAddrs = addrs.GetBlockStoreAddrs()
 
 		return conn.Close()

@@ -40,6 +40,8 @@ func NewRaftServer(id int64, config RaftConfig) (*RaftSurfstore, error) {
 
 	isLeaderMutex := sync.RWMutex{}
 	isCrashedMutex := sync.RWMutex{}
+	pendingCommitsMutex := sync.RWMutex{}
+	logMutex := sync.Mutex{}
 
 	server := RaftSurfstore{
 		isLeader:       false,
@@ -50,12 +52,14 @@ func NewRaftServer(id int64, config RaftConfig) (*RaftSurfstore, error) {
 		isCrashed:      false,
 		isCrashedMutex: &isCrashedMutex,
 		// Added for discussion
-		serverId:       id,
-		ipList:         config.RaftAddrs,
-		ip:             config.RaftAddrs[id],
-		pendingCommits: make([]chan bool, 0),
-		commitIndex:    -1,
-		lastApplied:    -1,
+		serverId:            id,
+		ipList:              config.RaftAddrs,
+		ip:                  config.RaftAddrs[id],
+		pendingCommits:      make([]chan bool, 0),
+		pendingCommitsMutex: &pendingCommitsMutex,
+		commitIndex:         -1,
+		lastApplied:         -1,
+		logMutex:            &logMutex,
 	}
 
 	return &server, nil

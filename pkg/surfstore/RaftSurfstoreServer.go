@@ -32,7 +32,7 @@ type RaftSurfstore struct {
 
 	//log protection
 	//Log mutex
-	logMutex sync.Mutex //*
+	logMutex *sync.Mutex //*
 
 	/*--------------- Chaos Monkey --------------*/
 	isCrashed      bool
@@ -247,9 +247,9 @@ func (s *RaftSurfstore) UpdateFile(ctx context.Context, filemeta *FileMetaData) 
 	}
 	s.isCrashedMutex.RUnlock()
 
-	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$")
-	fmt.Println("Update file called: Printing leader details log length:", len(s.log), "serverId:", s.serverId, "filemeta:", filemeta)
-	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$")
+	// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$")
+	// fmt.Println("Update file called: Printing leader details log length:", len(s.log), "serverId:", s.serverId, "filemeta:", filemeta)
+	// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$")
 
 	oper := &UpdateOperation{
 		Term:         s.term,
