@@ -390,6 +390,7 @@ func (s *RaftSurfstore) SendHeartbeat(ctx context.Context, _ *emptypb.Empty) (*S
 		}
 
 		conn, err := grpc.Dial(addr, grpc.WithInsecure())
+		defer conn.Close()
 		if err != nil {
 			continue
 		}
@@ -419,7 +420,7 @@ func (s *RaftSurfstore) SendHeartbeat(ctx context.Context, _ *emptypb.Empty) (*S
 				Flag: false,
 			}, ERR_NOT_LEADER
 		}
-		conn.Close()
+		// conn.Close()
 	}
 	if heartBCount > len(s.ipList)/2 {
 		return &Success{
