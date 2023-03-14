@@ -2,7 +2,6 @@ package surfstore
 
 import (
 	context "context"
-	"fmt"
 	sync "sync"
 
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -32,7 +31,7 @@ func (m *MetaStore) UpdateFile(ctx context.Context, fileMetaData *FileMetaData) 
 		// fmt.Println("Local file version:", fileMetaData.Version)
 		if (m.FileMetaMap[fileMetaData.Filename].Version + 1) != fileMetaData.Version {
 			m.mlock.Unlock()
-			fmt.Println("Going inside")
+			// fmt.Println("Going inside")
 			return &Version{
 				Version: -1,
 			}, nil
@@ -55,6 +54,7 @@ func (m *MetaStore) GetBlockStoreMap(ctx context.Context, blockHashesIn *BlockHa
 	// panic("todo")
 	// you need to call getResponsible server from here
 	// make(map[string]*BlockHashes)
+	// fmt.Println("Input hashes for MS GMSMap:", blockHashesIn)
 	blockStoreMap := &BlockStoreMap{}
 	blockStoreMap.BlockStoreMap = make(map[string]*BlockHashes)
 	for _, hash := range blockHashesIn.GetHashes() { //.hashes
@@ -65,7 +65,7 @@ func (m *MetaStore) GetBlockStoreMap(ctx context.Context, blockHashesIn *BlockHa
 		}
 		blockStoreMap.BlockStoreMap[resp_ser].Hashes = append(blockStoreMap.BlockStoreMap[resp_ser].Hashes, hash)
 	}
-	// fmt.Println()
+	// fmt.Println("Get block store map in meta store:", blockStoreMap)
 	return blockStoreMap, nil
 }
 

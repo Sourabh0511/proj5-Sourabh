@@ -109,10 +109,15 @@ func (surfClient *RPCClient) GetFileInfoMap(serverFileInfoMap *map[string]*FileM
 		// fmt.Println("GetFileInfoMap:")
 		// fmt.Println(fileInfoMap)
 		if err != nil {
-			// fmt.Println(err)
+			if err == ERR_SERVER_CRASHED {
+				continue
+			} else {
+				conn.Close()
+				return err
+			}
 			// conn.Close()
 			// return err
-			continue
+			// continue
 		}
 
 		// *serverFileInfoMap = fileInfoMap.GetFileInfoMap()
@@ -198,6 +203,7 @@ func (surfClient *RPCClient) GetBlockStoreMap(blockHashesIn []string, blockStore
 	for _, addr := range surfClient.MetaStoreAddrs {
 		conn, err := grpc.Dial(addr, grpc.WithInsecure())
 		if err != nil {
+			// fmt.Println("Error inside dial:", err)
 			return err
 		}
 		c := NewRaftSurfstoreClient(conn)
@@ -208,7 +214,9 @@ func (surfClient *RPCClient) GetBlockStoreMap(blockHashesIn []string, blockStore
 			blockHashes.Hashes = append(blockHashes.Hashes, bin)
 		}
 		bm, err := c.GetBlockStoreMap(ctx, blockHashes)
+		// fmt.Println("bm in rpc client:", bm, err)
 		if err != nil {
+			// fmt.Println("error is:", err)
 			continue
 		}
 		bStrMp := make(map[string][]string)

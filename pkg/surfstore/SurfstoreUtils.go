@@ -128,10 +128,17 @@ func getRespServer(blockStoreMap map[string][]string, blockHash string) string {
 func processTaggedFiles(client RPCClient, taggedFiles []FileTagInfo, localFileMetaMap *map[string]*FileMetaData) {
 
 	serverFileMetaMap := make(map[string]*FileMetaData)
-	client.GetFileInfoMap(&serverFileMetaMap)
+	err := client.GetFileInfoMap(&serverFileMetaMap)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	// fmt.Println("Length of tagged files:", len(taggedFiles))
 	for _, tagged_file := range taggedFiles {
 		fn := tagged_file.fileName
+		// fmt.Println("File name is:", fn)
+		// fmt.Println("Operation is:", tagged_file.op)
 		if tagged_file.op == 3 {
+			// fmt.Println("File name is:", fn)
 			_, ok := serverFileMetaMap[fn]
 			// fmt.Println("Ok value is:", ok)
 			if ok {
@@ -173,6 +180,7 @@ func processTaggedFiles(client RPCClient, taggedFiles []FileTagInfo, localFileMe
 			blocks = getFileBlocks(client, fn)
 			hblocks = getFileBlockHashList(client, fn)
 			client.GetBlockStoreMap(hblocks, &blockStrMap)
+			// fmt.Println("Block store map", blockStrMap)
 			// fmt.Println("First time after getting file blocks", blocks)
 			var blockHashesPresent []string
 			for k, v := range blockStrMap {

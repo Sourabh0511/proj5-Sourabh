@@ -70,9 +70,11 @@ func (s *RaftSurfstore) GetFileInfoMap(ctx context.Context, empty *emptypb.Empty
 
 func (s *RaftSurfstore) GetBlockStoreMap(ctx context.Context, hashes *BlockHashes) (*BlockStoreMap, error) {
 	// panic("todo")
+	// fmt.Println("Bm in Raft:")
 	s.isLeaderMutex.RLock()
 	if !s.isLeader {
 		s.isLeaderMutex.RUnlock()
+		// fmt.Println("Not leader:")
 		return nil, ERR_NOT_LEADER
 	}
 	s.isLeaderMutex.RUnlock()
@@ -80,6 +82,7 @@ func (s *RaftSurfstore) GetBlockStoreMap(ctx context.Context, hashes *BlockHashe
 	s.isCrashedMutex.RLock()
 	if s.isCrashed {
 		s.isCrashedMutex.RUnlock()
+		// fmt.Println("Crashed:")
 		return nil, ERR_SERVER_CRASHED
 	}
 	s.isCrashedMutex.RUnlock()
@@ -87,13 +90,19 @@ func (s *RaftSurfstore) GetBlockStoreMap(ctx context.Context, hashes *BlockHashe
 	for {
 		msg, err := s.SendHeartbeat(ctx, &emptypb.Empty{})
 		if msg != nil && msg.Flag {
+			// fmt.Println("Before break")
 			break
 		}
 		if msg != nil && !msg.Flag && err != nil && strings.Contains(err.Error(), "Server is not the leader") {
 			return nil, err
+			// fmt.Println("Before continue")
+			// continue
 		}
 	}
-	return s.metaStore.GetBlockStoreMap(ctx, hashes)
+	// fmt.Println("Input hashes:", hashes)
+	bSMap, err := s.metaStore.GetBlockStoreMap(ctx, hashes)
+	// fmt.Println("Return from MS:", bSMap)
+	return bSMap, err
 }
 
 func (s *RaftSurfstore) GetBlockStoreAddrs(ctx context.Context, empty *emptypb.Empty) (*BlockStoreAddrs, error) {
