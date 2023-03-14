@@ -130,7 +130,7 @@ func processTaggedFiles(client RPCClient, taggedFiles []FileTagInfo, localFileMe
 	serverFileMetaMap := make(map[string]*FileMetaData)
 	err := client.GetFileInfoMap(&serverFileMetaMap)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf(err.Error(), "Sync failed")
 	}
 	// fmt.Println("Length of tagged files:", len(taggedFiles))
 	for _, tagged_file := range taggedFiles {
