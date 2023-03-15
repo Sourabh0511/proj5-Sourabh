@@ -1,6 +1,7 @@
 package surfstore
 
 import (
+	"fmt"
 	"io"
 	"io/fs"
 	"io/ioutil"
@@ -129,14 +130,15 @@ func processTaggedFiles(client RPCClient, taggedFiles []FileTagInfo, localFileMe
 
 	serverFileMetaMap := make(map[string]*FileMetaData)
 	err := client.GetFileInfoMap(&serverFileMetaMap)
+	fmt.Println(err)
 	if err != nil {
 		log.Fatalf(err.Error(), "Sync failed")
 	}
 	// fmt.Println("Length of tagged files:", len(taggedFiles))
 	for _, tagged_file := range taggedFiles {
 		fn := tagged_file.fileName
-		// fmt.Println("File name is:", fn)
-		// fmt.Println("Operation is:", tagged_file.op)
+		fmt.Println("File name is:", fn)
+		fmt.Println("Operation is:", tagged_file.op)
 		if tagged_file.op == 3 {
 			// fmt.Println("File name is:", fn)
 			_, ok := serverFileMetaMap[fn]

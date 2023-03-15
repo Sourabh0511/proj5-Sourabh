@@ -109,15 +109,16 @@ func (surfClient *RPCClient) GetFileInfoMap(serverFileInfoMap *map[string]*FileM
 		// fmt.Println("GetFileInfoMap:")
 		// fmt.Println(fileInfoMap)
 		if err != nil {
-			if err == ERR_SERVER_CRASHED {
-				continue
-			} else {
-				conn.Close()
-				return err
-			}
-			// conn.Close()
+			// if err == ERR_SERVER_CRASHED {
+			// 	fmt.Println("In here crashed condition....")
+			// 	continue
+			// } else {
+			// 	conn.Close()
+			// 	return err
+			// }
+			conn.Close()
 			// return err
-			// continue
+			continue
 		}
 
 		// *serverFileInfoMap = fileInfoMap.GetFileInfoMap()
@@ -150,6 +151,13 @@ func (surfClient *RPCClient) UpdateFile(fileMetaData *FileMetaData, latestVersio
 			// conn.Close()
 			// return err
 			continue
+			// if err == ERR_SERVER_CRASHED {
+			// 	fmt.Println("In here crashed condition....")
+			// 	continue
+			// } else {
+			// 	conn.Close()
+			// 	return err
+			// }
 		}
 		*latestVersion = finalVers.Version
 
@@ -218,6 +226,13 @@ func (surfClient *RPCClient) GetBlockStoreMap(blockHashesIn []string, blockStore
 		if err != nil {
 			// fmt.Println("error is:", err)
 			continue
+			// if err == ERR_SERVER_CRASHED {
+			// 	fmt.Println("In here crashed condition....")
+			// 	continue
+			// } else {
+			// 	conn.Close()
+			// 	return err
+			// }
 		}
 		bStrMp := make(map[string][]string)
 		for k, v := range bm.BlockStoreMap {
@@ -244,6 +259,14 @@ func (surfClient *RPCClient) GetBlockStoreAddrs(blockStoreAddrs *[]string) error
 		addrs, err := c.GetBlockStoreAddrs(ctx, &emptypb.Empty{})
 		if err != nil {
 			continue
+			// fmt.Println("Error is:", err)
+			// if err == ERR_SERVER_CRASHED {
+			// 	// fmt.Println("In here crashed condition....")
+			// 	continue
+			// } else {
+			// 	conn.Close()
+			// 	return err
+			// }
 		}
 		*blockStoreAddrs = addrs.GetBlockStoreAddrs()
 

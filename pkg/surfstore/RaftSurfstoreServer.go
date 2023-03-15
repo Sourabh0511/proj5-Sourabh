@@ -62,6 +62,7 @@ func (s *RaftSurfstore) GetFileInfoMap(ctx context.Context, empty *emptypb.Empty
 			break
 		}
 		if msg != nil && !msg.Flag && err != nil && strings.Contains(err.Error(), "Server is not the leader") {
+			fmt.Println("Before return")
 			return nil, err
 		}
 	}
@@ -94,9 +95,9 @@ func (s *RaftSurfstore) GetBlockStoreMap(ctx context.Context, hashes *BlockHashe
 			break
 		}
 		if msg != nil && !msg.Flag && err != nil && strings.Contains(err.Error(), "Server is not the leader") {
-			// return nil, err
+			return nil, err
 			// fmt.Println("Before continue")
-			continue
+			// continue
 		}
 	}
 	// fmt.Println("Input hashes:", hashes)
@@ -127,6 +128,7 @@ func (s *RaftSurfstore) GetBlockStoreAddrs(ctx context.Context, empty *emptypb.E
 			break
 		}
 		if msg != nil && !msg.Flag && err != nil && strings.Contains(err.Error(), "Server is not the leader") {
+			fmt.Println("Before return")
 			return nil, err
 		}
 	}
